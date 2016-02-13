@@ -50,6 +50,13 @@ Hubzip is tested on Windows 7+ and on Debian (both x86 and x86-64)
 using Python 3.5.0+ and requests 2.9.1+. Older versions back to Python 3.3
 could work. Python 2.x is not supported.
 
+## Status
+
+This program is finished!
+
+Hubzip is feature-complete and has no known bugs. Unless issues are reported
+I plan no further development on it other than maintenance.
+
 ## License
 
 Like all my hobby projects, this is Free Software. See the [Documentation][]
