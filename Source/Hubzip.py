@@ -44,7 +44,7 @@ except ImportError:
 # Downloading the zip:
 
 GITHUB_URL_FORMAT = 'https://github.com/{username}/{repository}/archive/master.zip'
-FILENAME_FORMAT = '{repo}-master.zip'
+FILENAME_FORMAT = '{repository}-master.zip'
 
 def download_github_zip(username, repository, chunk_size = 1024):
     """
