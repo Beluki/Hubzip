@@ -74,7 +74,7 @@ def download_github_zip(username, repository, chunk_size = 1024):
 
         # download:
         with open(filename, 'wb') as descriptor:
-            for index, chunk in enumerate(response.iter_content(chunk_size)):
+            for chunk in response.iter_content(chunk_size):
                 descriptor.write(chunk)
 
         return filename
