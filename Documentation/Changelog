@@ -1,6 +1,12 @@
 
 CHANGELOG
 
+* 2016/02/18:
+
+    - Validate Content-Disposition and Content-Length.
+
+    - Add progress.
+
 * 2016/02/13:
 
     - First complete version.

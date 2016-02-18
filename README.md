@@ -3,22 +3,23 @@
 
 Sometimes I want to mess around with some source code of a given
 project in Github without cloning it, just to see the current state
-or browse the files locally in my editor.
-
-In those cases, I don't care about the logs, history, commits and
-all the git stuff, therefore I just click the download button,
-decompress it and start my journey. Some repositories also take
-a while to clone.
+or browse the files locally in my editor. In those cases, I don't care
+about the logs, history, commits and all the git stuff, therefore
+I just click the download button, decompress it and start my journey.
+Some repositories also take a while to clone.
 
 Hubzip is a small Python 3 program that does the same from the
-command-line by specifying the user/repository combination.
+command-line by specifying the user/repository combinations. It does nothing
+`wget`, `unzip` and `rm` wouldn't. I just find it more convenient.
 
 Using it is simple:
 
 ```bash
 $ Hubzip.py kennethreitz/requests mitsuhiko/flask
 kennethreitz/requests...
+ requests-master.zip: 743,083 743,083 bytes.
 mitsuhiko/flask...
+ flask-master.zip: 651,326 651,326 bytes.
 
 $ ls
 flask-master  requests-master
@@ -44,7 +45,7 @@ Hubzip will stop downloading and exit with an error message instead
 of continuing with the next repository.
 
 Note that Hubzip will overwrite any files with the same name on
-the current working directory while extracting.
+the current working directory.
 
 Hubzip is tested on Windows 7+ and on Debian (both x86 and x86-64)
 using Python 3.5.0+ and requests 2.9.1+. Older versions back to Python 3.3

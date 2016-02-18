@@ -37,7 +37,7 @@ try:
 
 except ImportError:
     errln('Hubzip requires the following modules:')
-    errln('requests 2.7.0+ - <https://pypi.python.org/pypi/requests>')
+    errln('requests 2.9.1+ - <https://pypi.python.org/pypi/requests>')
     sys.exit(1)
 
 
@@ -46,7 +46,7 @@ except ImportError:
 GITHUB_URL_FORMAT = 'https://github.com/{username}/{repository}/archive/master.zip'
 FILENAME_FORMAT = '{repository}-master.zip'
 
-def download_github_zip(username, repository, chunk_size = 1024):
+def download_github_zip(username, repository, chunk_size = 1024, quiet = False):
     """
     Downloads a repository zip from Github.
     Returns the resulting filename.
@@ -59,23 +59,51 @@ def download_github_zip(username, repository, chunk_size = 1024):
         # validate headers:
         headers = response.headers
 
-        # zip?
-        if headers.get('Content-Type') != 'application/zip':
-            raise ValueError('Invalid Content-Type: should be: application/zip.')
+        content_type = headers.get('Content-Type')
+        content_disposition = headers.get('Content-Disposition')
+        content_length = headers.get('Content-Length')
 
-        # filename?
-        # (or fallback to the default Github one)
-        disposition = headers.get('Content-Disposition')
+        # type must be zip:
+        if content_type != 'application/zip':
+            raise ValueError('Invalid Content-Type: should be: "application/zip".')
 
-        if disposition is not None:
-            header, filename = re.search('^(attachment; filename)=(.+)$', disposition).groups()
+        # guess filename or fall back to the default Github one:
+        if content_disposition is not None:
+            match = re.search('^(attachment; filename=)(.+)$', content_disposition)
+
+            if match and match.lastindex == 2:
+                filename = match.group(2)
+            else:
+                filename = FILENAME_FORMAT.format(repository = repository)
+
+        # guess filesize or set to None:
+        if content_length is not None:
+            try:
+                filesize = int(content_length)
+            except ValueError:
+                raise ValueError('Invalid Content-Length: not an int.')
         else:
-            filename = FILENAME_FORMAT.format(repository = repository)
+            filesize = None
 
         # download:
         with open(filename, 'wb') as descriptor:
-            for chunk in response.iter_content(chunk_size):
+            for index, chunk in enumerate(response.iter_content(chunk_size), 1):
                 descriptor.write(chunk)
+
+                # print progress?
+                if not quiet and filesize is not None:
+                    downloaded = (chunk_size * index)
+
+                    # the last chunk can overflow the filesize:
+                    if downloaded > filesize:
+                        downloaded = filesize
+
+                    sys.stdout.write('\r {}: {:,} {:,} bytes.'.format(filename, downloaded, filesize))
+                    sys.stdout.flush()
+
+        # newline to separate messages:
+        if not quiet:
+            outln('')
 
         return filename
 
@@ -102,7 +130,7 @@ def make_parser():
         action = 'store_true')
 
     parser.add_argument('--quiet',
-        help = 'do not print information messages to stdout',
+        help = 'do not print information/progress messages to stdout',
         action = 'store_true')
 
     return parser
@@ -134,11 +162,11 @@ def main():
 
         # information:
         if not options.quiet:
-            outln('{}/{}...'.format(username, repository))
+           outln('{}/{}...'.format(username, repository))
 
         # download:
         try:
-            filename = download_github_zip(username, repository)
+            filename = download_github_zip(username, repository, 1024, options.quiet)
 
         except Exception as err:
             errln('Unable to download: {}/{}.'.format(username, repository))
